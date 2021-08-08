@@ -5,7 +5,7 @@ import com.redislabs.jedis.providers.JedisConnectionProvider;
 
 public class Jedis implements JedisCommands {
 
-  private final JedisConnectionProvider provider;
+  protected final JedisConnectionProvider provider;
 
   public Jedis(JedisConnectionProvider provider) {
     this.provider = provider;
