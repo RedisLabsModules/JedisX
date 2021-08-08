@@ -1,32 +1,46 @@
 package com.redislabs.jedis;
 
 import com.redislabs.jedis.commands.JedisCommands;
-import java.io.Closeable;
-import java.io.IOException;
+import com.redislabs.jedis.providers.JedisConnectionProvider;
 
-public class Jedis implements JedisCommands, Closeable {
+public class Jedis implements JedisCommands {
 
-  private final JedisSocketConnection sc;
+  private final JedisConnectionProvider provider;
 
-  public Jedis(JedisSocketConnection connection) {
-    sc = connection;
-  }
-
-  @Override
-  public void close() throws IOException {
-    sc.close();
+  public Jedis(JedisConnectionProvider provider) {
+    this.provider = provider;
   }
 
   @Override
   public String set(String key, String value) {
-    sc.sendCommand(Protocol.Command.SET, key, value);
-    return sc.getStatusCodeReply();
+    JedisSocketConnection conn = provider.getConnection(Protocol.Command.SET, -1);
+    try {
+      conn.sendCommand(Protocol.Command.SET, key, value);
+      return conn.getStatusCodeReply();
+    } finally {
+      provider.returnConnection(-1, conn);
+    }
   }
 
   @Override
   public String get(String key) {
-    sc.sendCommand(Protocol.Command.GET, key);
-    return sc.getBulkReply();
+    JedisSocketConnection conn = provider.getConnection(Protocol.Command.GET, -1);
+    try {
+      conn.sendCommand(Protocol.Command.GET, key);
+      return conn.getBulkReply();
+    } finally {
+      provider.returnConnection(-1, conn);
+    }
   }
 
+  @Override
+  public long del(String key) {
+    JedisSocketConnection conn = provider.getConnection(Protocol.Command.DEL, -1);
+    try {
+      conn.sendCommand(Protocol.Command.DEL, key);
+      return conn.getIntegerReply();
+    } finally {
+      provider.returnConnection(-1, conn);
+    }
+  }
 }

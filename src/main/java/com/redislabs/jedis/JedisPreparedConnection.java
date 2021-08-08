@@ -3,7 +3,7 @@ package com.redislabs.jedis;
 import com.redislabs.jedis.exceptions.JedisException;
 
 public class JedisPreparedConnection extends JedisSocketConnection {
-  
+
   public JedisPreparedConnection() {
     super();
   }
@@ -14,6 +14,11 @@ public class JedisPreparedConnection extends JedisSocketConnection {
 
   public JedisPreparedConnection(final HostAndPort hostAndPort, final JedisClientConfig clientConfig) {
     super(hostAndPort, clientConfig);
+    initializeFromClientConfig(clientConfig);
+  }
+
+  public JedisPreparedConnection(JedisSocketFactory factory, final JedisClientConfig clientConfig) {
+    super(factory);
     initializeFromClientConfig(clientConfig);
   }
 
@@ -51,7 +56,7 @@ public class JedisPreparedConnection extends JedisSocketConnection {
     }
   }
 
-  private String quit() {
+  public String quit() {
     sendCommand(Protocol.Command.QUIT);
     String quitReturn = getStatusCodeReply();
     disconnect();
@@ -68,7 +73,7 @@ public class JedisPreparedConnection extends JedisSocketConnection {
     return getStatusCodeReply();
   }
 
-  private String select(final int index) {
+  public String select(final int index) {
     sendCommand(Protocol.Command.SELECT, Protocol.toByteArray(index));
     return getStatusCodeReply();
   }
@@ -76,6 +81,14 @@ public class JedisPreparedConnection extends JedisSocketConnection {
   private String clientSetname(final String name) {
     sendCommand(Protocol.Command.CLIENT, Protocol.Keyword.SETNAME.name(), name);
     return getStatusCodeReply();
+  }
+
+  public void ping() {
+    sendCommand(Protocol.Command.PING);
+    String status = getStatusCodeReply();
+    if (!"PONG".equals(status)) {
+      throw new JedisException(status);
+    }
   }
 
 }
