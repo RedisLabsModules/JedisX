@@ -1,21 +1,18 @@
-package com.redislabs.jedis.pool;
+package com.redislabs.jedis;
 
-import com.redislabs.jedis.DefaultJedisSocketFactory;
-import com.redislabs.jedis.HostAndPort;
-import com.redislabs.jedis.JedisClientConfig;
-import com.redislabs.jedis.JedisPreparedConnection;
-import com.redislabs.jedis.JedisSocketFactory;
 import com.redislabs.jedis.exceptions.JedisException;
+import com.redislabs.jedis.util.Pool;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.PooledObjectFactory;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JedisConnectionFactory implements PooledObjectFactory<JedisPreparedConnection> {
+public class JedisConnectionFactory implements PooledObjectFactory<JedisConnection> {
 
   private static final Logger logger = LoggerFactory.getLogger(JedisConnectionFactory.class);
 
+  private final Pool<JedisConnection> memberOf;
   private HostAndPort hostAndPort;
   private JedisClientConfig clientConfig;
   private final JedisSocketFactory factory;
@@ -26,8 +23,21 @@ public class JedisConnectionFactory implements PooledObjectFactory<JedisPrepared
     this.clientConfig = clientConfig;
   }
 
+  public JedisConnectionFactory(HostAndPort hostAndPort, JedisClientConfig clientConfig,
+      Pool<JedisConnection> memberOf) {
+    this(new DefaultJedisSocketFactory(hostAndPort, clientConfig), memberOf);
+    this.hostAndPort = hostAndPort;
+    this.clientConfig = clientConfig;
+  }
+
   public JedisConnectionFactory(JedisSocketFactory factory) {
     this.factory = factory;
+    this.memberOf = null;
+  }
+
+  public JedisConnectionFactory(JedisSocketFactory factory, Pool<JedisConnection> memberOf) {
+    this.factory = factory;
+    this.memberOf = memberOf;
   }
 
   public void setHostAndPort(final HostAndPort hostAndPort) {
@@ -42,14 +52,14 @@ public class JedisConnectionFactory implements PooledObjectFactory<JedisPrepared
   }
 
   @Override
-  public void activateObject(PooledObject<JedisPreparedConnection> pooledJedis) throws Exception {
-//    final JedisPreparedConnection jedis = pooledJedis.getObject();
+  public void activateObject(PooledObject<JedisConnection> pooledJedis) throws Exception {
+//    final JedisConnection jedis = pooledJedis.getObject();
 //    jedis.select(clientConfig.getDatabase());
   }
 
   @Override
-  public void destroyObject(PooledObject<JedisPreparedConnection> pooledJedis) throws Exception {
-    final JedisPreparedConnection jedis = pooledJedis.getObject();
+  public void destroyObject(PooledObject<JedisConnection> pooledJedis) throws Exception {
+    final JedisConnection jedis = pooledJedis.getObject();
     if (jedis.isConnected()) {
       try {
         // need a proper test, probably with mock
@@ -68,10 +78,10 @@ public class JedisConnectionFactory implements PooledObjectFactory<JedisPrepared
   }
 
   @Override
-  public PooledObject<JedisPreparedConnection> makeObject() throws Exception {
-    JedisPreparedConnection jedis = null;
+  public PooledObject<JedisConnection> makeObject() throws Exception {
+    JedisConnection jedis = null;
     try {
-      jedis = new JedisPreparedConnection(factory, clientConfig);
+      jedis = new JedisConnection(factory, clientConfig, memberOf);
       jedis.connect();
       return new DefaultPooledObject<>(jedis);
     } catch (JedisException je) {
@@ -92,13 +102,13 @@ public class JedisConnectionFactory implements PooledObjectFactory<JedisPrepared
   }
 
   @Override
-  public void passivateObject(PooledObject<JedisPreparedConnection> pooledJedis) throws Exception {
+  public void passivateObject(PooledObject<JedisConnection> pooledJedis) throws Exception {
     // TODO maybe should select db 0? Not sure right now.
   }
 
   @Override
-  public boolean validateObject(PooledObject<JedisPreparedConnection> pooledJedis) {
-    final JedisPreparedConnection jedis = pooledJedis.getObject();
+  public boolean validateObject(PooledObject<JedisConnection> pooledJedis) {
+    final JedisConnection jedis = pooledJedis.getObject();
     try {
 //      String host = jedisSocketFactory.getHost();
 //      int port = jedisSocketFactory.getPort();

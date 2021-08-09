@@ -4,9 +4,9 @@ import com.redislabs.jedis.DefaultJedisClientConfig;
 import com.redislabs.jedis.HostAndPort;
 import com.redislabs.jedis.Jedis;
 import com.redislabs.jedis.JedisClientConfig;
-import com.redislabs.jedis.JedisPreparedConnection;
+import com.redislabs.jedis.JedisConnection;
 import com.redislabs.jedis.hash.RedisHash;
-import com.redislabs.jedis.pool.JedisConnectionPool;
+import com.redislabs.jedis.JedisConnectionPool;
 import com.redislabs.jedis.providers.ManagedJedisConnectionProvider;
 import com.redislabs.jedis.providers.PooledJedisConnectionProvider;
 import com.redislabs.jedis.util.HostAndPortUtil;
@@ -16,20 +16,21 @@ import java.util.Collections;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class Examples {
+public class ExamplesTest {
 
   private static final HostAndPort DEFAULT_HOST_AND_PORT = HostAndPortUtil.getRedisServers().get(0);
   private static final JedisClientConfig DEFAULT_CLIENT_CONFIG = DefaultJedisClientConfig.builder().password("foobared").build();
 
   @Test
   public void managed() {
-    JedisPreparedConnection conn = new JedisPreparedConnection(DEFAULT_HOST_AND_PORT, DEFAULT_CLIENT_CONFIG);
+    JedisConnection conn = new JedisConnection(DEFAULT_HOST_AND_PORT, DEFAULT_CLIENT_CONFIG);
     ManagedJedisConnectionProvider managed = new ManagedJedisConnectionProvider();
     Jedis jedis = new Jedis(managed);
     try {
       jedis.get("foo");
+      Assert.fail();
     } catch (Exception ex) {
-      System.out.println(ex);
+      // expected
     }
     managed.setConnection(conn);
     Assert.assertNull(jedis.get("foo"));
@@ -38,21 +39,16 @@ public class Examples {
 
   @Test
   public void pooled() {
-    Pool<JedisPreparedConnection> pool = new JedisConnectionPool(DEFAULT_HOST_AND_PORT, DEFAULT_CLIENT_CONFIG);
+    Pool<JedisConnection> pool = new JedisConnectionPool(DEFAULT_HOST_AND_PORT, DEFAULT_CLIENT_CONFIG);
     PooledJedisConnectionProvider pooled = new PooledJedisConnectionProvider(pool);
     Jedis jedis = new Jedis(pooled);
-    try {
-      jedis.get("foo");
-    } catch (Exception ex) {
-      System.out.println(ex);
-    }
     Assert.assertNull(jedis.get("foo"));
     pool.close();
   }
 
   @Test
   public void extendedModule() {
-    Pool<JedisPreparedConnection> pool = new JedisConnectionPool(DEFAULT_HOST_AND_PORT, DEFAULT_CLIENT_CONFIG);
+    Pool<JedisConnection> pool = new JedisConnectionPool(DEFAULT_HOST_AND_PORT, DEFAULT_CLIENT_CONFIG);
     PooledJedisConnectionProvider pooled = new PooledJedisConnectionProvider(pool);
     RedisHash hash = new RedisHash(pooled);
     hash.hset("hash", Collections.singletonMap("foo", "bar"));

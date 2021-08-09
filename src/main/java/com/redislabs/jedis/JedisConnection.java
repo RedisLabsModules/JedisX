@@ -3,7 +3,9 @@ package com.redislabs.jedis;
 import com.redislabs.jedis.commands.ProtocolCommand;
 import com.redislabs.jedis.exceptions.JedisConnectionException;
 import com.redislabs.jedis.exceptions.JedisDataException;
+import com.redislabs.jedis.exceptions.JedisException;
 import com.redislabs.jedis.util.IOUtils;
+import com.redislabs.jedis.util.Pool;
 import com.redislabs.jedis.util.RedisInputStream;
 import com.redislabs.jedis.util.RedisOutputStream;
 import com.redislabs.jedis.util.SafeEncoder;
@@ -15,10 +17,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class JedisSocketConnection implements Closeable {
+public class JedisConnection implements Closeable {
 
   private static final byte[][] EMPTY_ARGS = new byte[0][];
 
+  private final Pool<JedisConnection> memberOf;
   private final JedisSocketFactory socketFactory;
   private Socket socket;
   private RedisOutputStream outputStream;
@@ -27,23 +30,37 @@ public class JedisSocketConnection implements Closeable {
   private int infiniteSoTimeout = 0;
   private boolean broken = false;
 
-  public JedisSocketConnection() {
+  public JedisConnection() {
     this(Protocol.DEFAULT_HOST, Protocol.DEFAULT_PORT);
   }
 
-  public JedisSocketConnection(final String host, final int port) {
+  public JedisConnection(final String host, final int port) {
     this(new HostAndPort(host, port), DefaultJedisClientConfig.builder().build());
   }
 
-  public JedisSocketConnection(final HostAndPort hostAndPort, final JedisClientConfig clientConfig) {
+  public JedisConnection(final HostAndPort hostAndPort, final JedisClientConfig clientConfig) {
     this(new DefaultJedisSocketFactory(hostAndPort, clientConfig));
     this.soTimeout = clientConfig.getSocketTimeoutMillis();
     this.infiniteSoTimeout = clientConfig.getBlockingSocketTimeoutMillis();
+    initializeFromClientConfig(clientConfig);
   }
 
-  public JedisSocketConnection(final JedisSocketFactory jedisSocketFactory) {
-    this.socketFactory = jedisSocketFactory;
-    this.soTimeout = jedisSocketFactory.getSocketTimeout();
+  public JedisConnection(final JedisSocketFactory socketFactory, JedisClientConfig clientConfig) {
+    this.socketFactory = socketFactory;
+    initializeFromClientConfig(clientConfig);
+    this.memberOf = null;
+  }
+
+  public JedisConnection(final JedisSocketFactory socketFactory, JedisClientConfig clientConfig, Pool<JedisConnection> pool) {
+    this.socketFactory = socketFactory;
+    initializeFromClientConfig(clientConfig);
+    this.memberOf = pool;
+  }
+
+  public JedisConnection(final JedisSocketFactory socketFactory) {
+    this.socketFactory = socketFactory;
+    this.soTimeout = socketFactory.getSocketTimeout();
+    this.memberOf = null;
   }
 
   @Override
@@ -151,7 +168,15 @@ public class JedisSocketConnection implements Closeable {
 
   @Override
   public void close() {
-    disconnect();
+    if (this.memberOf != null) {
+      if (isBroken()) {
+        this.memberOf.returnBrokenResource(this);
+      } else {
+        this.memberOf.returnResource(this);
+      }
+    } else {
+      disconnect();
+    }
   }
 
   public void disconnect() {
@@ -277,4 +302,74 @@ public class JedisSocketConnection implements Closeable {
     }
     return responses;
   }
+
+  private void initializeFromClientConfig(JedisClientConfig config) {
+    try {
+      connect();
+      String password = config.getPassword();
+      if (password != null) {
+        String user = config.getUser();
+        if (user != null) {
+          auth(user, password);
+        } else {
+          auth(password);
+        }
+      }
+      int dbIndex = config.getDatabase();
+      if (dbIndex > 0) {
+        select(dbIndex);
+      }
+      String clientName = config.getClientName();
+      if (clientName != null) {
+        // TODO: need to figure out something without encoding
+        clientSetname(clientName);
+      }
+    } catch (JedisException je) {
+      try {
+        if (isConnected()) {
+          quit();
+        }
+        disconnect();
+      } catch (Exception e) {
+        //
+      }
+      throw je;
+    }
+  }
+
+  public String quit() {
+    sendCommand(Protocol.Command.QUIT);
+    String quitReturn = getStatusCodeReply();
+    disconnect();
+    return quitReturn;
+  }
+
+  private String auth(final String password) {
+    sendCommand(Protocol.Command.AUTH, password);
+    return getStatusCodeReply();
+  }
+
+  private String auth(final String user, final String password) {
+    sendCommand(Protocol.Command.AUTH, user, password);
+    return getStatusCodeReply();
+  }
+
+  public String select(final int index) {
+    sendCommand(Protocol.Command.SELECT, Protocol.toByteArray(index));
+    return getStatusCodeReply();
+  }
+
+  private String clientSetname(final String name) {
+    sendCommand(Protocol.Command.CLIENT, Protocol.Keyword.SETNAME.name(), name);
+    return getStatusCodeReply();
+  }
+
+  public void ping() {
+    sendCommand(Protocol.Command.PING);
+    String status = getStatusCodeReply();
+    if (!"PONG".equals(status)) {
+      throw new JedisException(status);
+    }
+  }
+
 }

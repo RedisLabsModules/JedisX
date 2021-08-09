@@ -1,12 +1,11 @@
 package com.redislabs.jedis.providers;
 
-import com.redislabs.jedis.JedisSocketConnection;
+import com.redislabs.jedis.JedisConnection;
 import com.redislabs.jedis.commands.ProtocolCommand;
 import com.redislabs.jedis.util.Pool;
-import java.io.Closeable;
 import java.io.IOException;
 
-public class PooledJedisConnectionProvider<C extends JedisSocketConnection> implements JedisConnectionProvider, Closeable {
+public class PooledJedisConnectionProvider<C extends JedisConnection> implements JedisConnectionProvider, AutoCloseable {
 
   private final Pool<C> pool;
 
@@ -20,16 +19,17 @@ public class PooledJedisConnectionProvider<C extends JedisSocketConnection> impl
   }
 
   @Override
-  public C getConnection(ProtocolCommand command, int slot) {
+  public JedisConnection getConnection(ProtocolCommand command) {
     return pool.getResource();
   }
 
   @Override
-  public void returnConnection(int slot, JedisSocketConnection conn) {
-    if (conn.isBroken()) {
-      this.pool.returnBrokenResource((C) conn);
-    } else {
-      this.pool.returnResource((C) conn);
-    }
+  public JedisConnection getConnection(ProtocolCommand command, byte[] key) {
+    return pool.getResource();
+  }
+
+  @Override
+  public JedisConnection getConnection(ProtocolCommand command, String key) {
+    return pool.getResource();
   }
 }

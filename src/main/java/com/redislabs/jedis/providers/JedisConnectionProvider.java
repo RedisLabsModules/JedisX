@@ -1,11 +1,13 @@
 package com.redislabs.jedis.providers;
 
-import com.redislabs.jedis.JedisSocketConnection;
+import com.redislabs.jedis.JedisConnection;
 import com.redislabs.jedis.commands.ProtocolCommand;
 
 public interface JedisConnectionProvider {
   
-  JedisSocketConnection getConnection(ProtocolCommand command, int slot);
+  JedisConnection getConnection(ProtocolCommand command);
 
-  void returnConnection(int slot, JedisSocketConnection conn);
+  JedisConnection getConnection(ProtocolCommand command, byte[] key);
+
+  JedisConnection getConnection(ProtocolCommand command, String key);
 }

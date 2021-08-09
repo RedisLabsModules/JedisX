@@ -1,22 +1,28 @@
 package com.redislabs.jedis.providers;
 
-import com.redislabs.jedis.JedisSocketConnection;
+import com.redislabs.jedis.JedisConnection;
 import com.redislabs.jedis.commands.ProtocolCommand;
 
 public class ManagedJedisConnectionProvider implements JedisConnectionProvider {
 
-  private JedisSocketConnection conn;
+  private JedisConnection conn;
 
-  public final void setConnection(JedisSocketConnection conn) {
+  public final void setConnection(JedisConnection conn) {
     this.conn = conn;
   }
 
   @Override
-  public JedisSocketConnection getConnection(ProtocolCommand command, int slot) {
-    return this.conn;
+  public JedisConnection getConnection(ProtocolCommand command) {
+    return conn;
   }
 
   @Override
-  public void returnConnection(int slot, JedisSocketConnection conn) {
+  public JedisConnection getConnection(ProtocolCommand command, byte[] key) {
+    return conn;
+  }
+
+  @Override
+  public JedisConnection getConnection(ProtocolCommand command, String key) {
+    return conn;
   }
 }
