@@ -1,11 +1,11 @@
 package com.redislabs.jedis.hash;
 
+import com.redislabs.jedis.BuilderFactory;
 import com.redislabs.jedis.Jedis;
 import com.redislabs.jedis.JedisConnection;
 import com.redislabs.jedis.Protocol;
+import com.redislabs.jedis.hash.commands.HashCommands;
 import com.redislabs.jedis.providers.JedisConnectionProvider;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class RedisHash extends Jedis implements HashCommands {
@@ -33,12 +33,7 @@ public class RedisHash extends Jedis implements HashCommands {
   public Map<String, String> hgetAll(String key) {
     try (JedisConnection conn = provider.getConnection(Protocol.Command.HGETALL, key)) {
       conn.sendCommand(Protocol.Command.HGETALL, key);
-      List<String> list = conn.getMultiBulkReply();
-      Map<String, String> map = new HashMap<>(list.size() / 2);
-      for (int i = 0; i < list.size(); i += 2) {
-        map.put(list.get(i), list.get(i + 1));
-      }
-      return map;
+      return BuilderFactory.STRING_MAP.build(conn.getOne());
     }
   }
 

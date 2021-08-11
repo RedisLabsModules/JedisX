@@ -12,6 +12,14 @@ public class Jedis implements JedisCommands {
   }
 
   @Override
+  public long del(String key) {
+    try (JedisConnection conn = provider.getConnection(Protocol.Command.DEL, key)) {
+      conn.sendCommand(Protocol.Command.DEL, key);
+      return conn.getIntegerReply();
+    }
+  }
+
+  @Override
   public String set(String key, String value) {
     try (JedisConnection conn = provider.getConnection(Protocol.Command.SET, key)) {
       conn.sendCommand(Protocol.Command.SET, key, value);
@@ -24,14 +32,6 @@ public class Jedis implements JedisCommands {
     try (JedisConnection conn = provider.getConnection(Protocol.Command.GET, key)) {
       conn.sendCommand(Protocol.Command.GET, key);
       return conn.getBulkReply();
-    }
-  }
-
-  @Override
-  public long del(String key) {
-    try (JedisConnection conn = provider.getConnection(Protocol.Command.DEL, key)) {
-      conn.sendCommand(Protocol.Command.DEL, key);
-      return conn.getIntegerReply();
     }
   }
 }

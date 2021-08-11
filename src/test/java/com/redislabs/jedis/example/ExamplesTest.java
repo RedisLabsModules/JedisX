@@ -7,19 +7,35 @@ import com.redislabs.jedis.JedisClientConfig;
 import com.redislabs.jedis.JedisConnection;
 import com.redislabs.jedis.hash.RedisHash;
 import com.redislabs.jedis.JedisConnectionPool;
-import com.redislabs.jedis.providers.ManagedJedisConnectionProvider;
-import com.redislabs.jedis.providers.PooledJedisConnectionProvider;
+import com.redislabs.jedis.Protocol;
+import com.redislabs.jedis.providers.*;
 import com.redislabs.jedis.util.HostAndPortUtil;
 import com.redislabs.jedis.util.Pool;
 
 import java.util.Collections;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 public class ExamplesTest {
 
-  private static final HostAndPort DEFAULT_HOST_AND_PORT = HostAndPortUtil.getRedisServers().get(0);
-  private static final JedisClientConfig DEFAULT_CLIENT_CONFIG = DefaultJedisClientConfig.builder().password("foobared").build();
+  static final HostAndPort DEFAULT_HOST_AND_PORT = HostAndPortUtil.getRedisServers().get(0);
+  static final JedisClientConfig DEFAULT_CLIENT_CONFIG = DefaultJedisClientConfig.builder().password("foobared").build();
+
+  @Before
+  public void setUp() {
+    try (JedisConnection connection = new JedisConnection(DEFAULT_HOST_AND_PORT, DEFAULT_CLIENT_CONFIG)) {
+      connection.sendCommand(Protocol.Command.FLUSHALL);
+    }
+  }
+
+  @Test
+  public void simple() {
+    SimpleJedisConnectionProvider simple = new SimpleJedisConnectionProvider(DEFAULT_HOST_AND_PORT, DEFAULT_CLIENT_CONFIG);
+    Jedis jedis = new Jedis(simple);
+    Assert.assertNull(jedis.get("foo"));
+    simple.close();
+  }
 
   @Test
   public void managed() {
@@ -29,7 +45,7 @@ public class ExamplesTest {
     try {
       jedis.get("foo");
       Assert.fail();
-    } catch (Exception ex) {
+    } catch (NullPointerException npe) {
       // expected
     }
     managed.setConnection(conn);
