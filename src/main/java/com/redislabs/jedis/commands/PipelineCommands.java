@@ -2,7 +2,7 @@ package com.redislabs.jedis.commands;
 
 import com.redislabs.jedis.Response;
 
-public interface RedisPipelineCommands {
+public interface PipelineCommands {
 
   Response<Long> del(String key);
 

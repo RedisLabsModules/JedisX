@@ -1,10 +1,10 @@
 package com.redislabs.jedis;
 
-import com.redislabs.jedis.commands.RedisPipelineCommands;
+import com.redislabs.jedis.commands.PipelineCommands;
 
-public class RedisPipeline extends PipelineBase implements RedisPipelineCommands {
+public class Pipeline extends PipelineBase implements PipelineCommands {
 
-  public RedisPipeline(JedisConnection connection) {
+  public Pipeline(JedisConnection connection) {
     super(connection);
   }
 

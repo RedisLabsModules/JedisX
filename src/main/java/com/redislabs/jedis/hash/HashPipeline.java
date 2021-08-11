@@ -3,12 +3,12 @@ package com.redislabs.jedis.hash;
 import com.redislabs.jedis.BuilderFactory;
 import com.redislabs.jedis.JedisConnection;
 import com.redislabs.jedis.Protocol;
-import com.redislabs.jedis.RedisPipeline;
+import com.redislabs.jedis.Pipeline;
 import com.redislabs.jedis.Response;
 import com.redislabs.jedis.hash.commands.HashPipelineCommands;
 import java.util.Map;
 
-public class HashPipeline extends RedisPipeline implements HashPipelineCommands {
+public class HashPipeline extends Pipeline implements HashPipelineCommands {
 
   public HashPipeline(JedisConnection connection) {
     super(connection);

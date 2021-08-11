@@ -2,7 +2,7 @@ package com.redislabs.jedis.example;
 
 import com.redislabs.jedis.JedisConnection;
 import com.redislabs.jedis.Protocol;
-import com.redislabs.jedis.RedisPipeline;
+import com.redislabs.jedis.Pipeline;
 import com.redislabs.jedis.Response;
 import com.redislabs.jedis.hash.HashPipeline;
 
@@ -28,7 +28,7 @@ public class PipelineTest {
   @Test
   public void simplePipeline() {
     JedisConnection connection = new JedisConnection(ExamplesTest.DEFAULT_HOST_AND_PORT, ExamplesTest.DEFAULT_CLIENT_CONFIG);
-    RedisPipeline pipe = new RedisPipeline(connection);
+    Pipeline pipe = new Pipeline(connection);
     Response<String> nul = pipe.get("foo");
     Response<String> set = pipe.set("foo", "bar");
     Response<String> get = pipe.get("foo");
