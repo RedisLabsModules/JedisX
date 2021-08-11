@@ -2,9 +2,9 @@ package com.redislabs.jedis;
 
 import com.redislabs.jedis.commands.PipelineCommands;
 
-public class Pipeline extends PipelineBase implements PipelineCommands {
+public class Transaction extends TransactionBase implements PipelineCommands {
 
-  public Pipeline(JedisConnection connection) {
+  public Transaction(JedisConnection connection) {
     super(connection);
   }
 

@@ -4,6 +4,7 @@ import com.redislabs.jedis.JedisConnection;
 import com.redislabs.jedis.Protocol;
 import com.redislabs.jedis.Pipeline;
 import com.redislabs.jedis.Response;
+import com.redislabs.jedis.Transaction;
 import com.redislabs.jedis.hash.HashPipeline;
 
 import java.util.Collections;
@@ -13,6 +14,7 @@ import org.junit.Test;
 
 import static com.redislabs.jedis.example.ExamplesTest.DEFAULT_CLIENT_CONFIG;
 import static com.redislabs.jedis.example.ExamplesTest.DEFAULT_HOST_AND_PORT;
+import com.redislabs.jedis.hash.HashTransaction;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
@@ -40,6 +42,20 @@ public class PipelineTest {
   }
 
   @Test
+  public void simpleTransaction() {
+    JedisConnection connection = new JedisConnection(ExamplesTest.DEFAULT_HOST_AND_PORT, ExamplesTest.DEFAULT_CLIENT_CONFIG);
+    Transaction tran = new Transaction(connection);
+    Response<String> nul = tran.get("foo");
+    Response<String> set = tran.set("foo", "bar");
+    Response<String> get = tran.get("foo");
+    tran.exec();
+    assertNull(nul.get());
+    assertEquals("OK", set.get());
+    assertEquals("bar", get.get());
+    connection.close();
+  }
+
+  @Test
   public void modulePipeline() {
     JedisConnection connection = new JedisConnection(ExamplesTest.DEFAULT_HOST_AND_PORT, ExamplesTest.DEFAULT_CLIENT_CONFIG);
     HashPipeline pipe = new HashPipeline(connection);
@@ -48,6 +64,22 @@ public class PipelineTest {
     Response<Long> del = pipe.del("key");
     Response<Map<String, String>> empty = pipe.hgetAll("key");
     pipe.sync();
+    assertEquals(Long.valueOf(1), hset.get());
+    assertEquals(Collections.singletonMap("foo", "bar"), map.get());
+    assertEquals(Long.valueOf(1), del.get());
+    assertEquals(Collections.emptyMap(), empty.get());
+    connection.close();
+  }
+
+  @Test
+  public void moduleTransaction() {
+    JedisConnection connection = new JedisConnection(ExamplesTest.DEFAULT_HOST_AND_PORT, ExamplesTest.DEFAULT_CLIENT_CONFIG);
+    HashTransaction tran = new HashTransaction(connection);
+    Response<Long> hset = tran.hset("key", Collections.singletonMap("foo", "bar"));
+    Response<Map<String, String>> map = tran.hgetAll("key");
+    Response<Long> del = tran.del("key");
+    Response<Map<String, String>> empty = tran.hgetAll("key");
+    tran.exec();
     assertEquals(Long.valueOf(1), hset.get());
     assertEquals(Collections.singletonMap("foo", "bar"), map.get());
     assertEquals(Long.valueOf(1), del.get());
