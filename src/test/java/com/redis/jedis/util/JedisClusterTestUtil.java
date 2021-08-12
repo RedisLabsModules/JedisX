@@ -5,7 +5,7 @@ import com.redis.jedis.HostAndPort;
 import com.redis.jedis.JedisConnection;
 import com.redis.jedis.Protocol;
 
-public class JedisClusterUtil {
+public class JedisClusterTestUtil {
 
   public static final int HASHSLOTS = 16384;
 

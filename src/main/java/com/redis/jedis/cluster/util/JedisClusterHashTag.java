@@ -1,12 +1,14 @@
-package com.redis.jedis.util;
+package com.redis.jedis.cluster.util;
+
+import com.redis.jedis.util.SafeEncoder;
 
 /**
  * Holds various methods/utilities to manipulate and parse redis hash-tags. See <a
  * href="http://redis.io/topics/cluster-spec">Cluster-Spec : Keys hash tags</a>
  */
-public final class JedisClusterHashTagUtil {
+public final class JedisClusterHashTag {
 
-  private JedisClusterHashTagUtil() {
+  private JedisClusterHashTag() {
     throw new InstantiationError("Must not instantiate this class");
   }
 

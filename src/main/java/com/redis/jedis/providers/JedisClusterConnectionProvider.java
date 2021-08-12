@@ -6,7 +6,7 @@ import com.redis.jedis.JedisConnection;
 import com.redis.jedis.cluster.JedisClusterConnectionHandler;
 import com.redis.jedis.cluster.JedisSlotBasedConnectionHandler;
 import com.redis.jedis.commands.ProtocolCommand;
-import com.redis.jedis.util.JedisClusterCRC16;
+import com.redis.jedis.cluster.util.JedisClusterCRC16;
 import java.util.Set;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 

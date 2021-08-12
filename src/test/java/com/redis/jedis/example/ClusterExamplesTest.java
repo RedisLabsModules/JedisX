@@ -4,7 +4,7 @@ import com.redis.jedis.DefaultJedisClientConfig;
 import com.redis.jedis.Jedis;
 import com.redis.jedis.providers.JedisClusterConnectionProvider;
 import com.redis.jedis.util.HostAndPortUtil;
-import com.redis.jedis.util.JedisClusterUtil;
+import com.redis.jedis.util.JedisClusterTestUtil;
 
 import java.util.Collections;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
@@ -17,12 +17,12 @@ public class ClusterExamplesTest {
 
   @Before
   public void setUp() throws InterruptedException {
-    JedisClusterUtil.setUp();
+    JedisClusterTestUtil.setUp();
   }
 
   @After
   public void cleanUp() {
-    JedisClusterUtil.cleanUp();
+    JedisClusterTestUtil.cleanUp();
   }
 
   @Test
