@@ -26,7 +26,6 @@ public class JedisConnection implements Closeable {
   private Socket socket;
   private RedisOutputStream outputStream;
   private RedisInputStream inputStream;
-  private int soTimeout = Protocol.DEFAULT_TIMEOUT;
   private int infiniteSoTimeout = 0;
   private boolean broken = false;
 
@@ -40,26 +39,23 @@ public class JedisConnection implements Closeable {
 
   public JedisConnection(final HostAndPort hostAndPort, final JedisClientConfig clientConfig) {
     this(new DefaultJedisSocketFactory(hostAndPort, clientConfig));
-    this.soTimeout = clientConfig.getSocketTimeoutMillis();
     this.infiniteSoTimeout = clientConfig.getBlockingSocketTimeoutMillis();
     initializeFromClientConfig(clientConfig);
   }
 
   public JedisConnection(final JedisSocketFactory socketFactory, JedisClientConfig clientConfig) {
-    this.socketFactory = socketFactory;
-    initializeFromClientConfig(clientConfig);
-    this.memberOf = null;
+    this(socketFactory, clientConfig, null);
   }
 
   public JedisConnection(final JedisSocketFactory socketFactory, JedisClientConfig clientConfig, Pool<JedisConnection> pool) {
     this.socketFactory = socketFactory;
+    this.infiniteSoTimeout = clientConfig.getBlockingSocketTimeoutMillis();
     initializeFromClientConfig(clientConfig);
     this.memberOf = pool;
   }
 
   public JedisConnection(final JedisSocketFactory socketFactory) {
     this.socketFactory = socketFactory;
-    this.soTimeout = socketFactory.getSocketTimeout();
     this.memberOf = null;
   }
 
@@ -70,7 +66,6 @@ public class JedisConnection implements Closeable {
 
   public void setSoTimeout(int soTimeout) {
     socketFactory.setSocketTimeout(soTimeout);
-    this.soTimeout = soTimeout;
     if (this.socket != null) {
       try {
         this.socket.setSoTimeout(soTimeout);
@@ -79,10 +74,6 @@ public class JedisConnection implements Closeable {
         throw new JedisConnectionException(ex);
       }
     }
-  }
-
-  public void setInfiniteSoTimeout(int infiniteSoTimeout) {
-    this.infiniteSoTimeout = infiniteSoTimeout;
   }
 
   public void setTimeoutInfinite() {
@@ -104,6 +95,11 @@ public class JedisConnection implements Closeable {
       broken = true;
       throw new JedisConnectionException(ex);
     }
+  }
+
+  public Object executeCommand(final ProtocolCommand cmd) {
+    sendCommand(cmd);
+    return getOne();
   }
 
   public void sendCommand(final ProtocolCommand cmd, final String... args) {
@@ -175,7 +171,7 @@ public class JedisConnection implements Closeable {
         this.memberOf.returnResource(this);
       }
     } else {
-      disconnect();
+      // disconnect();
     }
   }
 

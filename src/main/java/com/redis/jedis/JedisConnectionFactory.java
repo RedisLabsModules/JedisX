@@ -70,7 +70,7 @@ public class JedisConnectionFactory implements PooledObjectFactory<JedisConnecti
         logger.warn("Error while QUIT", e);
       }
       try {
-        jedis.close();
+        jedis.disconnect();
       } catch (Exception e) {
         logger.warn("Error while close", e);
       }
@@ -92,7 +92,7 @@ public class JedisConnectionFactory implements PooledObjectFactory<JedisConnecti
           logger.warn("Error while QUIT", e);
         }
         try {
-          jedis.close();
+          jedis.disconnect();
         } catch (Exception e) {
           logger.warn("Error while close", e);
         }

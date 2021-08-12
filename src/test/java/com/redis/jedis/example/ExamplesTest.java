@@ -26,15 +26,16 @@ public class ExamplesTest {
 
   @Before
   public void setUp() {
-    try (JedisConnection connection = new JedisConnection(DEFAULT_HOST_AND_PORT, DEFAULT_CLIENT_CONFIG)) {
-      connection.sendCommand(Protocol.Command.FLUSHALL);
-    }
+    JedisConnection connection = new JedisConnection(DEFAULT_HOST_AND_PORT, DEFAULT_CLIENT_CONFIG);
+    connection.executeCommand(Protocol.Command.FLUSHALL);
+    connection.disconnect();
   }
 
   @Test
   public void simple() {
     SimpleJedisConnectionProvider simple = new SimpleJedisConnectionProvider(DEFAULT_HOST_AND_PORT, DEFAULT_CLIENT_CONFIG);
     Jedis jedis = new Jedis(simple);
+    Assert.assertNull(jedis.get("foo"));
     Assert.assertNull(jedis.get("foo"));
     simple.close();
   }
@@ -52,6 +53,7 @@ public class ExamplesTest {
     }
     managed.setConnection(conn);
     Assert.assertNull(jedis.get("foo"));
+    Assert.assertNull(jedis.get("foo"));
     conn.close();
   }
 
@@ -60,6 +62,7 @@ public class ExamplesTest {
     Pool<JedisConnection> pool = new JedisConnectionPool(DEFAULT_HOST_AND_PORT, DEFAULT_CLIENT_CONFIG);
     PooledJedisConnectionProvider pooled = new PooledJedisConnectionProvider(pool);
     Jedis jedis = new Jedis(pooled);
+    Assert.assertNull(jedis.get("foo"));
     Assert.assertNull(jedis.get("foo"));
     pool.close();
   }

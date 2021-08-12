@@ -24,6 +24,10 @@ public class JedisClusterTestUtil {
     node2 = new JedisConnection(nodeInfo2, DefaultJedisClientConfig.builder().password("cluster").build());
     node3 = new JedisConnection(nodeInfo3, DefaultJedisClientConfig.builder().password("cluster").build());
 
+    node1.sendCommand(Protocol.Command.FLUSHALL);
+    node2.sendCommand(Protocol.Command.FLUSHALL);
+    node3.sendCommand(Protocol.Command.FLUSHALL);
+
     // add nodes to cluster
     clusterMeet(node1, LOCAL_IP, nodeInfo2.getPort());
     clusterMeet(node1, LOCAL_IP, nodeInfo3.getPort());

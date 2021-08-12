@@ -22,9 +22,9 @@ public class PipelineTest {
 
   @Before
   public void setUp() {
-    try (JedisConnection connection = new JedisConnection(DEFAULT_HOST_AND_PORT, DEFAULT_CLIENT_CONFIG)) {
-      connection.sendCommand(Protocol.Command.FLUSHALL);
-    }
+    JedisConnection connection = new JedisConnection(DEFAULT_HOST_AND_PORT, DEFAULT_CLIENT_CONFIG);
+    connection.executeCommand(Protocol.Command.FLUSHALL);
+    connection.disconnect();
   }
 
   @Test

@@ -19,7 +19,7 @@ public class SimpleJedisConnectionProvider implements JedisConnectionProvider, A
 
   @Override
   public void close() {
-    connection.close();
+    connection.disconnect();
   }
 
   @Override
