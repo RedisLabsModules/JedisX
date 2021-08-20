@@ -21,3 +21,20 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+
+# Jedis historical
+.classpath
+*.iml
+*.ipr
+*.iws
+nb*
+.project
+.settings/
+.gradle/
+target/
+build/
+bin/
+tags
+.idea
+*.aof
+*.rdb
