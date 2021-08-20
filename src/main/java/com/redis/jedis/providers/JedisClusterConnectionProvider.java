@@ -4,9 +4,9 @@ import com.redis.jedis.HostAndPort;
 import com.redis.jedis.JedisClientConfig;
 import com.redis.jedis.JedisConnection;
 import com.redis.jedis.cluster.JedisClusterConnectionHandler;
-import com.redis.jedis.cluster.JedisSlotBasedConnectionHandler;
 import com.redis.jedis.commands.ProtocolCommand;
 import com.redis.jedis.cluster.util.JedisClusterCRC16;
+
 import java.util.Set;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
@@ -16,7 +16,7 @@ public class JedisClusterConnectionProvider implements JedisConnectionProvider, 
 
   public JedisClusterConnectionProvider(Set<HostAndPort> jedisClusterNode, JedisClientConfig clientConfig,
       GenericObjectPoolConfig<JedisConnection> poolConfig) {
-    this.connectionHandler = new JedisSlotBasedConnectionHandler(jedisClusterNode, poolConfig, clientConfig);
+    this.connectionHandler = new JedisClusterConnectionHandler(jedisClusterNode, poolConfig, clientConfig);
   }
 
   @Override
