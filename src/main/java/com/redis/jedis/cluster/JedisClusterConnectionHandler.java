@@ -144,4 +144,8 @@ public class JedisClusterConnectionHandler implements Closeable {
       }
     }
   }
+
+  public HostAndPort getNodeInfoFromSlot(int slot) {
+    return cache.getSlotNode(slot);
+  }
 }

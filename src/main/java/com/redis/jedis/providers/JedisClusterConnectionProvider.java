@@ -42,4 +42,12 @@ public class JedisClusterConnectionProvider implements JedisConnectionProvider, 
   public JedisConnection getConnection(ProtocolCommand command, String key) {
     return getConnection(command, JedisClusterCRC16.getSlot(key));
   }
+
+  public JedisConnection getConnection(HostAndPort nodeKey) {
+    return this.connectionHandler.getConnectionFromNode(nodeKey);
+  }
+
+  public HostAndPort getNodeKey(String key) {
+    return this.connectionHandler.getNodeInfoFromSlot(JedisClusterCRC16.getSlot(key));
+  }
 }

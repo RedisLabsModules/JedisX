@@ -29,6 +29,7 @@ public class JedisClusterInfoCache {
 
   private final Map<String, Pool<JedisConnection>> nodes = new HashMap<>();
   private final Map<Integer, Pool<JedisConnection>> slots = new HashMap<>();
+  private final Map<Integer, HostAndPort> slotNodes = new HashMap<>();
 
   private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
   private final Lock r = rwl.readLock();
@@ -180,6 +181,7 @@ public class JedisClusterInfoCache {
     w.lock();
     try {
       this.slots.clear();
+      this.slotNodes.clear();
 
       for (Object slotInfoObj : slotsInfo) {
         List<Object> slotInfo = (List<Object>) slotInfoObj;
@@ -231,6 +233,7 @@ public class JedisClusterInfoCache {
     try {
       Pool<JedisConnection> targetPool = setupNodeIfNotExist(targetNode);
       slots.put(slot, targetPool);
+      slotNodes.put(slot, targetNode);
     } finally {
       w.unlock();
     }
@@ -242,6 +245,7 @@ public class JedisClusterInfoCache {
       Pool<JedisConnection> targetPool = setupNodeIfNotExist(targetNode);
       for (Integer slot : targetSlots) {
         slots.put(slot, targetPool);
+        slotNodes.put(slot, targetNode);
       }
     } finally {
       w.unlock();
@@ -257,10 +261,23 @@ public class JedisClusterInfoCache {
     }
   }
 
+  public Pool<JedisConnection> getNode(HostAndPort node) {
+    return getNode(getNodeKey(node));
+  }
+
   public Pool<JedisConnection> getSlotPool(int slot) {
     r.lock();
     try {
       return slots.get(slot);
+    } finally {
+      r.unlock();
+    }
+  }
+
+  public HostAndPort getSlotNode(int slot) {
+    r.lock();
+    try {
+      return slotNodes.get(slot);
     } finally {
       r.unlock();
     }
@@ -303,6 +320,7 @@ public class JedisClusterInfoCache {
       }
       nodes.clear();
       slots.clear();
+      slotNodes.clear();
     } finally {
       w.unlock();
     }
