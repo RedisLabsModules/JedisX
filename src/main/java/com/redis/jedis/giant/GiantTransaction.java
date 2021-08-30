@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-public class GiantTransaction extends TransactionBase implements PipelineCommands, HashPipelineCommands, SetPipelineCommands {
+public class GiantTransaction extends PipelinedTransactionBase implements PipelineCommands, HashPipelineCommands, SetPipelineCommands {
 
   public GiantTransaction(JedisConnection connection) {
     super(connection);

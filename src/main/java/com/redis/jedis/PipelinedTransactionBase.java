@@ -1,20 +1,26 @@
 package com.redis.jedis;
 
+import com.redis.jedis.commands.ProtocolCommand;
 import java.io.Closeable;
 import java.util.List;
 
 /**
  * Transaction is nearly identical to Pipeline, only differences are the multi/discard behaviors
  */
-public class TransactionBase extends Queable implements Closeable {
+public class PipelinedTransactionBase extends Queable implements Closeable {
 
   private boolean inTransaction = true;
 
   protected final JedisConnection connection;
 
-  public TransactionBase(JedisConnection connection) {
+  public PipelinedTransactionBase(JedisConnection connection) {
     this.connection = connection;
     this.connection.sendCommand(Protocol.Command.MULTI);
+  }
+
+  protected final <T> Response<T> enqueResponse(Builder<T> builder, ProtocolCommand command, String... args) {
+    connection.sendCommand(command, args);
+    return enqueResponse(builder);
   }
 
   @Override

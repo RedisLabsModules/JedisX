@@ -1,0 +1,64 @@
+package com.redis.jedis;
+
+import com.redis.jedis.commands.ProtocolCommand;
+import com.redis.jedis.exceptions.JedisException;
+import java.io.Closeable;
+import java.util.List;
+
+public class ReliableTransactionBase extends Queable implements Closeable {
+
+  private boolean inTransaction = true;
+
+  protected final JedisConnection connection;
+
+  public ReliableTransactionBase(JedisConnection connection) {
+    this.connection = connection;
+    executeMulti();
+  }
+
+  private void executeMulti() {
+    connection.sendCommand(Protocol.Command.MULTI);
+    String status = connection.getStatusCodeReply();
+    if (!"OK".equals(status)) {
+      throw new JedisException("MULTI command failed. Received response: " + status);
+    }
+  }
+
+  protected final <T> Response<T> enqueResponse(Builder<T> builder, ProtocolCommand command, String... args) {
+    connection.sendCommand(command, args);
+    String status = connection.getStatusCodeReply();
+    if (!"QUEUED".equals(status)) {
+      throw new JedisException(status);
+    }
+    return enqueResponse(builder);
+  }
+
+  @Override
+  public void close() {
+    clear();
+  }
+
+  public void clear() {
+    if (inTransaction) {
+      discard();
+    }
+  }
+
+  public final void exec() {
+    connection.sendCommand(Protocol.Command.EXEC);
+    inTransaction = false;
+
+    List<Object> unformatted = connection.getObjectMultiBulkReply();
+    unformatted.stream().forEachOrdered(u -> generateResponse(u));
+  }
+
+  public void discard() {
+    connection.sendCommand(Protocol.Command.DISCARD);
+    String status = connection.getStatusCodeReply();
+    inTransaction = false;
+    clean();
+    if (!"OK".equals(status)) {
+      throw new JedisException("DISCARD command failed. Received response: " + status);
+    }
+  }
+}

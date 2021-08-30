@@ -3,6 +3,7 @@ package com.redis.jedis.example;
 import com.redis.jedis.JedisConnection;
 import com.redis.jedis.Protocol;
 import com.redis.jedis.Pipeline;
+import com.redis.jedis.ReliableTransaction;
 import com.redis.jedis.Response;
 import com.redis.jedis.Transaction;
 import com.redis.jedis.hash.HashPipeline;
@@ -45,6 +46,20 @@ public class PipelineTest {
   public void simpleTransaction() {
     JedisConnection connection = new JedisConnection(ExamplesTest.DEFAULT_HOST_AND_PORT, ExamplesTest.DEFAULT_CLIENT_CONFIG);
     Transaction tran = new Transaction(connection);
+    Response<String> nul = tran.get("foo");
+    Response<String> set = tran.set("foo", "bar");
+    Response<String> get = tran.get("foo");
+    tran.exec();
+    assertNull(nul.get());
+    assertEquals("OK", set.get());
+    assertEquals("bar", get.get());
+    connection.close();
+  }
+
+  @Test
+  public void simpleReliableTransaction() {
+    JedisConnection connection = new JedisConnection(ExamplesTest.DEFAULT_HOST_AND_PORT, ExamplesTest.DEFAULT_CLIENT_CONFIG);
+    ReliableTransaction tran = new ReliableTransaction(connection);
     Response<String> nul = tran.get("foo");
     Response<String> set = tran.set("foo", "bar");
     Response<String> get = tran.get("foo");
