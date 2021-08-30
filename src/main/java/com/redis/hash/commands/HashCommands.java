@@ -1,4 +1,4 @@
-package com.redis.jedis.hash.commands;
+package com.redis.hash.commands;
 
 import java.util.Map;
 

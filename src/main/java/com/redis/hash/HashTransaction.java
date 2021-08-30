@@ -1,11 +1,11 @@
-package com.redis.jedis.hash;
+package com.redis.hash;
 
+import com.redis.hash.commands.HashPipelineCommands;
 import com.redis.jedis.BuilderFactory;
 import com.redis.jedis.JedisConnection;
 import com.redis.jedis.Protocol;
 import com.redis.jedis.Response;
 import com.redis.jedis.Transaction;
-import com.redis.jedis.hash.commands.HashPipelineCommands;
 import java.util.Map;
 
 public class HashTransaction extends Transaction implements HashPipelineCommands {

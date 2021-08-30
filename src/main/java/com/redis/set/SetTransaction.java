@@ -1,18 +1,18 @@
-package com.redis.jedis.set;
+package com.redis.set;
 
 import com.redis.jedis.BuilderFactory;
 import com.redis.jedis.JedisConnection;
 import com.redis.jedis.Protocol;
-import com.redis.jedis.Pipeline;
 import com.redis.jedis.Response;
-import com.redis.jedis.set.commands.SetPipelineCommands;
+import com.redis.jedis.Transaction;
+import com.redis.set.commands.SetPipelineCommands;
 
 import java.util.Collection;
 import java.util.Set;
 
-public class SetPipeline extends Pipeline implements SetPipelineCommands {
+public class SetTransaction extends Transaction implements SetPipelineCommands {
 
-  public SetPipeline(JedisConnection connection) {
+  public SetTransaction(JedisConnection connection) {
     super(connection);
   }
 

@@ -1,11 +1,11 @@
-package com.redis.jedis.hash;
+package com.redis.hash;
 
+import com.redis.jedis.providers.JedisConnectionProvider;
 import com.redis.jedis.BuilderFactory;
 import com.redis.jedis.Jedis;
 import com.redis.jedis.JedisConnection;
 import com.redis.jedis.Protocol;
-import com.redis.jedis.hash.commands.HashCommands;
-import com.redis.jedis.providers.JedisConnectionProvider;
+import com.redis.hash.commands.HashCommands;
 import java.util.Map;
 
 public class RedisHash extends Jedis implements HashCommands {

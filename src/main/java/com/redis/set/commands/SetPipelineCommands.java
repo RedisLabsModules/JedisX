@@ -1,4 +1,4 @@
-package com.redis.jedis.set.commands;
+package com.redis.set.commands;
 
 import com.redis.jedis.Response;
 import java.util.Collection;

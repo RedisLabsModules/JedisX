@@ -1,11 +1,11 @@
-package com.redis.jedis.set;
+package com.redis.set;
 
 import com.redis.jedis.BuilderFactory;
 import com.redis.jedis.Jedis;
 import com.redis.jedis.JedisConnection;
 import com.redis.jedis.Protocol;
 import com.redis.jedis.providers.JedisConnectionProvider;
-import com.redis.jedis.set.commands.SetCommands;
+import com.redis.set.commands.SetCommands;
 
 import java.util.Collection;
 import java.util.Set;

@@ -2,8 +2,8 @@ package com.redis.jedis.giant;
 
 import com.redis.jedis.*;
 import com.redis.jedis.commands.PipelineCommands;
-import com.redis.jedis.hash.commands.HashPipelineCommands;
-import com.redis.jedis.set.commands.SetPipelineCommands;
+import com.redis.hash.commands.HashPipelineCommands;
+import com.redis.set.commands.SetPipelineCommands;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;

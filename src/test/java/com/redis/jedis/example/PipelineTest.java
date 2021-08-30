@@ -6,8 +6,8 @@ import com.redis.jedis.Pipeline;
 import com.redis.jedis.ReliableTransaction;
 import com.redis.jedis.Response;
 import com.redis.jedis.Transaction;
-import com.redis.jedis.hash.HashPipeline;
-import com.redis.jedis.hash.HashTransaction;
+import com.redis.hash.HashPipeline;
+import com.redis.hash.HashTransaction;
 
 import java.util.Collections;
 import java.util.Map;

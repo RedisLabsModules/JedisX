@@ -1,4 +1,4 @@
-package com.redis.jedis.set.commands;
+package com.redis.set.commands;
 
 import java.util.Collection;
 import java.util.Set;

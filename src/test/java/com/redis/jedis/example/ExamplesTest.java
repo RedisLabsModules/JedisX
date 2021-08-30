@@ -8,7 +8,7 @@ import com.redis.jedis.HostAndPort;
 import com.redis.jedis.Jedis;
 import com.redis.jedis.JedisClientConfig;
 import com.redis.jedis.JedisConnection;
-import com.redis.jedis.hash.RedisHash;
+import com.redis.hash.RedisHash;
 import com.redis.jedis.JedisConnectionPool;
 import com.redis.jedis.Protocol;
 import com.redis.jedis.util.HostAndPortUtil;

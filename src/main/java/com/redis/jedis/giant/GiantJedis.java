@@ -2,9 +2,9 @@ package com.redis.jedis.giant;
 
 import com.redis.jedis.*;
 import com.redis.jedis.commands.JedisCommands;
-import com.redis.jedis.hash.commands.HashCommands;
+import com.redis.hash.commands.HashCommands;
 import com.redis.jedis.providers.JedisConnectionProvider;
-import com.redis.jedis.set.commands.SetCommands;
+import com.redis.set.commands.SetCommands;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;

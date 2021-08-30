@@ -1,9 +1,9 @@
 package com.redis.jedis.umbrella;
 
 import com.redis.jedis.Jedis;
-import com.redis.jedis.hash.RedisHash;
+import com.redis.hash.RedisHash;
 import com.redis.jedis.providers.JedisConnectionProvider;
-import com.redis.jedis.set.RedisSet;
+import com.redis.set.RedisSet;
 
 public class JedisUmbrella {
 
