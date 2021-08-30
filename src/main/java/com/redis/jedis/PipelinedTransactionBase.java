@@ -1,6 +1,5 @@
 package com.redis.jedis;
 
-import com.redis.jedis.commands.ProtocolCommand;
 import java.io.Closeable;
 import java.util.List;
 
@@ -18,9 +17,9 @@ public class PipelinedTransactionBase extends Queable implements Closeable {
     this.connection.sendCommand(Protocol.Command.MULTI);
   }
 
-  protected final <T> Response<T> enqueResponse(Builder<T> builder, ProtocolCommand command, String... args) {
-    connection.sendCommand(command, args);
-    return enqueResponse(builder);
+  protected final <T> Response<T> appendCommand(CommandObject<T> commandObject) {
+    connection.sendCommand(commandObject.getArguments());
+    return enqueResponse(commandObject.getBuilder());
   }
 
   @Override

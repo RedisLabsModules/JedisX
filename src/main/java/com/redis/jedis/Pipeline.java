@@ -4,26 +4,26 @@ import com.redis.jedis.commands.PipelineCommands;
 
 public class Pipeline extends PipelineBase implements PipelineCommands {
 
+  private final RedisCommandObjects commandObjects;
+
   public Pipeline(JedisConnection connection) {
     super(connection);
+    this.commandObjects = new RedisCommandObjects();
   }
 
   @Override
   public Response<Long> del(String key) {
-    connection.sendCommand(Protocol.Command.DEL, key);
-    return enqueResponse(BuilderFactory.LONG);
+    return appendCommand(commandObjects.del(key));
   }
 
   @Override
   public Response<String> get(String key) {
-    connection.sendCommand(Protocol.Command.GET, key);
-    return enqueResponse(BuilderFactory.STRING);
+    return appendCommand(commandObjects.get(key));
   }
 
   @Override
   public Response<String> set(String key, String value) {
-    connection.sendCommand(Protocol.Command.SET, key, value);
-    return enqueResponse(BuilderFactory.STRING);
+    return appendCommand(commandObjects.set(key, value));
   }
 
 }

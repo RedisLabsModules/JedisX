@@ -1,6 +1,5 @@
 package com.redis.jedis;
 
-import com.redis.jedis.commands.ProtocolCommand;
 import java.io.Closeable;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -22,8 +21,7 @@ public abstract class MultiNodePipelineBase implements Closeable {
 
   protected abstract JedisConnection getConnection(HostAndPort nodeKey);
 
-  protected final <T> Response<T> enqueResponse(HostAndPort nodeKey, Builder<T> builder,
-      ProtocolCommand command, String... args) {
+  protected final <T> Response<T> appendCommand(HostAndPort nodeKey, CommandObject<T> commandObject) {
     Queue<Response<?>> queue;
     JedisConnection connection;
     if (pipelinedResponses.containsKey(nodeKey)) {
@@ -36,8 +34,8 @@ public abstract class MultiNodePipelineBase implements Closeable {
       connections.put(nodeKey, connection);
     }
 
-    connection.sendCommand(command, args);
-    Response<T> response = new Response<>(builder);
+    connection.sendCommand(commandObject.getArguments());
+    Response<T> response = new Response<>(commandObject.getBuilder());
     queue.add(response);
     return response;
   }

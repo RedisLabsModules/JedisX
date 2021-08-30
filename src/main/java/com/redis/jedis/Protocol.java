@@ -79,6 +79,22 @@ public final class Protocol {
     }
   }
 
+  public static void sendCommand(final RedisOutputStream os, CommandArguments args) {
+    try {
+      os.write(ASTERISK_BYTE);
+      os.writeIntCrLf(args.size());
+      for (Rawable arg : args) {
+        os.write(DOLLAR_BYTE);
+        final byte[] bin = arg.getRaw();
+        os.writeIntCrLf(bin.length);
+        os.write(bin);
+        os.writeCrLf();
+      }
+    } catch (IOException e) {
+      throw new JedisConnectionException(e);
+    }
+  }
+
   private static void processError(final RedisInputStream is) {
     String message = is.readLine();
     // TODO: I'm not sure if this is the best way to do this.

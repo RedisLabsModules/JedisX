@@ -15,6 +15,11 @@ public class PipelineBase extends Queable implements Closeable {
     this.connection = connection;
   }
 
+  public final <T> Response<T> appendCommand(CommandObject<T> commandObject) {
+    connection.sendCommand(commandObject.getArguments());
+    return enqueResponse(commandObject.getBuilder());
+  }
+
   @Override
   public void close() {
     sync();

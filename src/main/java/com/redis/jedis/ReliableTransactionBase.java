@@ -1,6 +1,5 @@
 package com.redis.jedis;
 
-import com.redis.jedis.commands.ProtocolCommand;
 import com.redis.jedis.exceptions.JedisException;
 import java.io.Closeable;
 import java.util.List;
@@ -24,13 +23,13 @@ public class ReliableTransactionBase extends Queable implements Closeable {
     }
   }
 
-  protected final <T> Response<T> enqueResponse(Builder<T> builder, ProtocolCommand command, String... args) {
-    connection.sendCommand(command, args);
+  protected final <T> Response<T> appendCommand(CommandObject<T> commandObject) {
+    connection.sendCommand(commandObject.getArguments());
     String status = connection.getStatusCodeReply();
     if (!"QUEUED".equals(status)) {
       throw new JedisException(status);
     }
-    return enqueResponse(builder);
+    return enqueResponse(commandObject.getBuilder());
   }
 
   @Override

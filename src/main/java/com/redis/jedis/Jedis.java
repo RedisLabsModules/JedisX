@@ -6,32 +6,32 @@ import com.redis.jedis.providers.JedisConnectionProvider;
 public class Jedis implements JedisCommands {
 
   protected final JedisConnectionProvider provider;
+  private final RedisCommandObjects commandObjects;
 
   public Jedis(JedisConnectionProvider provider) {
     this.provider = provider;
+    this.commandObjects = new RedisCommandObjects();
+  }
+
+  protected final <T> T executeCommand(CommandObject<T> commandObject) {
+    try (JedisConnection connection = provider.getConnection(commandObject.getArguments().getCommand())) { // TODO
+      connection.sendCommand(commandObject.getArguments());
+      return commandObject.getBuilder().build(connection.getOne());
+    }
   }
 
   @Override
   public long del(String key) {
-    try (JedisConnection conn = provider.getConnection(Protocol.Command.DEL, key)) {
-      conn.sendCommand(Protocol.Command.DEL, key);
-      return conn.getIntegerReply();
-    }
+    return executeCommand(commandObjects.del(key));
   }
 
   @Override
   public String set(String key, String value) {
-    try (JedisConnection conn = provider.getConnection(Protocol.Command.SET, key)) {
-      conn.sendCommand(Protocol.Command.SET, key, value);
-      return conn.getStatusCodeReply();
-    }
+    return executeCommand(commandObjects.set(key, value));
   }
 
   @Override
   public String get(String key) {
-    try (JedisConnection conn = provider.getConnection(Protocol.Command.GET, key)) {
-      conn.sendCommand(Protocol.Command.GET, key);
-      return conn.getBulkReply();
-    }
+    return executeCommand(commandObjects.get(key));
   }
 }
