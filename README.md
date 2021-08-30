@@ -40,3 +40,5 @@ Giant variant of pipeline and transaction are implemented. No umbrella variant f
 ### multi-pipe-1
 
 Cluster Pipeline is implemented. [Not very satisfied with the pattern.]
+
+Reliable Transaction is implemented.
