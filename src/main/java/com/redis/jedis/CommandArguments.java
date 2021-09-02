@@ -20,18 +20,31 @@ public final class CommandArguments extends ArrayList<Rawable> {
     return (ProtocolCommand) get(0);
   }
 
+  public boolean add(String string) {
+    return super.add(RawableFactory.from(string));
+  }
+
+  public boolean add(byte[] binary) {
+    return super.add(RawableFactory.from(binary));
+  }
+
+  public boolean addObject(Object arg) {
+    if (arg instanceof Rawable) {
+      super.add((Rawable) arg);
+    } else if (arg instanceof byte[]) {
+      this.add((byte[]) arg);
+    } else if (arg instanceof String) {
+      this.add((String) arg);
+    } else {
+      throw new IllegalArgumentException("\"" + arg.toString() + "\" is not a valid argument.");
+    }
+    return true;
+  }
+
   public static CommandArguments of(ProtocolCommand command, Object... args) {
     CommandArguments ca = new CommandArguments(command);
     for (Object arg : args) {
-      if (arg instanceof Rawable) {
-        ca.add((Rawable) arg);
-      } else if (arg instanceof byte[]) {
-        ca.add(RawableFactory.from((byte[]) arg));
-      } else if (arg instanceof String) {
-        ca.add(RawableFactory.from((String) arg));
-      } else {
-        throw new IllegalArgumentException("\"" + arg.toString() + "\" is not a valid argument.");
-      }
+      ca.addObject(arg);
     }
     return ca;
   }

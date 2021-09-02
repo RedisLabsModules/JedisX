@@ -1,8 +1,6 @@
 package com.redis.set;
 
-import com.redis.jedis.BuilderFactory;
 import com.redis.jedis.JedisConnection;
-import com.redis.jedis.Protocol;
 import com.redis.jedis.Pipeline;
 import com.redis.jedis.Response;
 import com.redis.set.commands.SetPipelineCommands;
@@ -12,26 +10,21 @@ import java.util.Set;
 
 public class SetPipeline extends Pipeline implements SetPipelineCommands {
 
+  private final SetCommandObjects setCommandObjects;
+
   public SetPipeline(JedisConnection connection) {
     super(connection);
+    this.setCommandObjects = new SetCommandObjects();
   }
 
   @Override
   public Response<Long> sadd(String key, Collection<String> members) {
-    String[] args = new String[1 + members.size()];
-    int i = 0;
-    args[i++] = key;
-    for (String member : members) {
-      args[i++] = member;
-    }
-    connection.sendCommand(Protocol.Command.SADD, args);
-    return enqueResponse(BuilderFactory.LONG);
+    return appendCommand(setCommandObjects.sadd(key, members));
   }
 
   @Override
   public Response<Set<String>> smembers(String key) {
-    connection.sendCommand(Protocol.Command.SMEMBERS, key);
-    return enqueResponse(BuilderFactory.STRING_SET);
+    return appendCommand(setCommandObjects.smembers(key));
   }
 
 }

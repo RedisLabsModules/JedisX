@@ -1,40 +1,27 @@
 package com.redis.hash;
 
 import com.redis.jedis.providers.JedisConnectionProvider;
-import com.redis.jedis.BuilderFactory;
 import com.redis.jedis.Jedis;
-import com.redis.jedis.JedisConnection;
-import com.redis.jedis.Protocol;
 import com.redis.hash.commands.HashCommands;
 import java.util.Map;
 
 public class RedisHash extends Jedis implements HashCommands {
 
+  private final HashCommandObjects hashCommandObjects;
+
   public RedisHash(JedisConnectionProvider provider) {
     super(provider);
+    hashCommandObjects = new HashCommandObjects();
   }
 
   @Override
   public long hset(String key, Map<String, String> fieldValues) {
-    try (JedisConnection conn = provider.getConnection(Protocol.Command.HSET, key)) {
-      String[] args = new String[1 + fieldValues.size() * 2];
-      int i = 0;
-      args[i++] = key;
-      for (Map.Entry<String, String> entry : fieldValues.entrySet()) {
-        args[i++] = entry.getKey();
-        args[i++] = entry.getValue();
-      }
-      conn.sendCommand(Protocol.Command.HSET, args);
-      return conn.getIntegerReply();
-    }
+    return executeCommand(hashCommandObjects.hset(key, fieldValues));
   }
 
   @Override
   public Map<String, String> hgetAll(String key) {
-    try (JedisConnection conn = provider.getConnection(Protocol.Command.HGETALL, key)) {
-      conn.sendCommand(Protocol.Command.HGETALL, key);
-      return BuilderFactory.STRING_MAP.build(conn.getOne());
-    }
+    return executeCommand(hashCommandObjects.hgetAll(key));
   }
 
 }

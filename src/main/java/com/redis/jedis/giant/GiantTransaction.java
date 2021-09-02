@@ -1,72 +1,44 @@
 package com.redis.jedis.giant;
 
+import com.redis.hash.HashCommandObjects;
 import com.redis.jedis.*;
 import com.redis.jedis.commands.PipelineCommands;
 import com.redis.hash.commands.HashPipelineCommands;
+import com.redis.set.SetCommandObjects;
 import com.redis.set.commands.SetPipelineCommands;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-public class GiantTransaction extends PipelinedTransactionBase implements PipelineCommands, HashPipelineCommands, SetPipelineCommands {
+public class GiantTransaction extends Transaction implements PipelineCommands, HashPipelineCommands, SetPipelineCommands {
+
+  private final HashCommandObjects hashCommandObjects;
+  private final SetCommandObjects setCommandObjects;
 
   public GiantTransaction(JedisConnection connection) {
     super(connection);
-  }
-
-  @Override
-  public Response<Long> del(String key) {
-    connection.sendCommand(Protocol.Command.DEL, key);
-    return enqueResponse(BuilderFactory.LONG);
-  }
-
-  @Override
-  public Response<String> get(String key) {
-    connection.sendCommand(Protocol.Command.GET, key);
-    return enqueResponse(BuilderFactory.STRING);
-  }
-
-  @Override
-  public Response<String> set(String key, String value) {
-    connection.sendCommand(Protocol.Command.SET, key, value);
-    return enqueResponse(BuilderFactory.STRING);
+    this.hashCommandObjects = new HashCommandObjects();
+    this.setCommandObjects = new SetCommandObjects();
   }
 
   @Override
   public Response<Long> hset(String key, Map<String, String> fieldValues) {
-    String[] args = new String[1 + fieldValues.size() * 2];
-    int i = 0;
-    args[i++] = key;
-    for (Map.Entry<String, String> entry : fieldValues.entrySet()) {
-      args[i++] = entry.getKey();
-      args[i++] = entry.getValue();
-    }
-    connection.sendCommand(Protocol.Command.HSET, args);
-    return enqueResponse(BuilderFactory.LONG);
+    return appendCommand(hashCommandObjects.hset(key, fieldValues));
   }
 
   @Override
   public Response<Map<String, String>> hgetAll(String key) {
-    connection.sendCommand(Protocol.Command.HGETALL, key);
-    return enqueResponse(BuilderFactory.STRING_MAP);
+    return appendCommand(hashCommandObjects.hgetAll(key));
   }
 
   @Override
   public Response<Long> sadd(String key, Collection<String> members) {
-    String[] args = new String[1 + members.size()];
-    int i = 0;
-    args[i++] = key;
-    for (String member : members) {
-      args[i++] = member;
-    }
-    connection.sendCommand(Protocol.Command.SADD, args);
-    return enqueResponse(BuilderFactory.LONG);
+    return appendCommand(setCommandObjects.sadd(key, members));
   }
 
   @Override
   public Response<Set<String>> smembers(String key) {
-    connection.sendCommand(Protocol.Command.SMEMBERS, key);
-    return enqueResponse(BuilderFactory.STRING_SET);
+    return appendCommand(setCommandObjects.smembers(key));
   }
 
 }
