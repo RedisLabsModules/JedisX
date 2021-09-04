@@ -1,6 +1,7 @@
 package com.redis.jedis;
 
 import com.redis.jedis.commands.JedisCommands;
+import com.redis.jedis.providers.JedisClusterConnectionProvider;
 import com.redis.jedis.providers.JedisConnectionProvider;
 
 public class Jedis implements JedisCommands {
@@ -10,11 +11,12 @@ public class Jedis implements JedisCommands {
 
   public Jedis(JedisConnectionProvider provider) {
     this.provider = provider;
-    this.commandObjects = new RedisCommandObjects();
+    this.commandObjects = (this.provider instanceof JedisClusterConnectionProvider) ?
+        new RedisClusterCommandObjects() : new RedisCommandObjects();
   }
 
   protected final <T> T executeCommand(CommandObject<T> commandObject) {
-    try (JedisConnection connection = provider.getConnection(commandObject.getArguments().getCommand())) { // TODO
+    try (JedisConnection connection = provider.getConnection(commandObject.getArguments())) {
       connection.sendCommand(commandObject.getArguments());
       return commandObject.getBuilder().build(connection.getOne());
     }

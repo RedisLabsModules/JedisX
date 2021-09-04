@@ -3,6 +3,7 @@ package com.redis.hash;
 import com.redis.jedis.providers.JedisConnectionProvider;
 import com.redis.jedis.Jedis;
 import com.redis.hash.commands.HashCommands;
+import com.redis.jedis.providers.JedisClusterConnectionProvider;
 import java.util.Map;
 
 public class RedisHash extends Jedis implements HashCommands {
@@ -11,7 +12,8 @@ public class RedisHash extends Jedis implements HashCommands {
 
   public RedisHash(JedisConnectionProvider provider) {
     super(provider);
-    hashCommandObjects = new HashCommandObjects();
+    hashCommandObjects = (provider instanceof JedisClusterConnectionProvider)
+        ? new HashClusterCommandObjects() : new HashCommandObjects();
   }
 
   @Override

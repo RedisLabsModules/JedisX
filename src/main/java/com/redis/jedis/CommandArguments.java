@@ -5,7 +5,7 @@ import com.redis.jedis.args.RawableFactory;
 import com.redis.jedis.commands.ProtocolCommand;
 import java.util.ArrayList;
 
-public final class CommandArguments extends ArrayList<Rawable> {
+public class CommandArguments extends ArrayList<Rawable> {
 
   private CommandArguments() {
     throw new InstantiationError();
@@ -19,33 +19,77 @@ public final class CommandArguments extends ArrayList<Rawable> {
   public ProtocolCommand getCommand() {
     return (ProtocolCommand) get(0);
   }
+//
+//  public boolean add(String string) {
+//    return super.add(RawableFactory.from(string));
+//  }
+//
+//  public boolean add(byte[] binary) {
+//    return super.add(RawableFactory.from(binary));
+//  }
 
-  public boolean add(String string) {
-    return super.add(RawableFactory.from(string));
-  }
-
-  public boolean add(byte[] binary) {
-    return super.add(RawableFactory.from(binary));
-  }
-
-  public boolean addObject(Object arg) {
+//  public boolean addObject(Object arg) {
+  public CommandArguments addObject(Object arg) {
     if (arg instanceof Rawable) {
       super.add((Rawable) arg);
     } else if (arg instanceof byte[]) {
-      this.add((byte[]) arg);
+//      this.add((byte[]) arg);
+      super.add(RawableFactory.from((byte[]) arg));
     } else if (arg instanceof String) {
-      this.add((String) arg);
+//      this.add((String) arg);
+      super.add(RawableFactory.from((String) arg));
     } else {
       throw new IllegalArgumentException("\"" + arg.toString() + "\" is not a valid argument.");
     }
-    return true;
+//    return true;
+    return this;
+  }
+//
+//  public boolean addKey(String string) {
+//    return this.add(string);
+//  }
+//
+//  public boolean addKey(byte[] binary) {
+//    return this.add(binary);
+//  }
+
+//  public boolean addKeyObject(Object arg) {
+  public CommandArguments addKeyObject(Object arg) {
+    if (arg instanceof Rawable) {
+//      this.addKey(((Rawable) arg).getRaw());
+      Rawable key = (Rawable) arg;
+      processKey(key.getRaw());
+      super.add(key);
+    } else if (arg instanceof byte[]) {
+//      this.addKey((byte[]) arg);
+      byte[] key = (byte[]) arg;
+      processKey(key);
+      super.add(RawableFactory.from(key));
+    } else if (arg instanceof String) {
+//      this.addKey((String) arg);
+      String key = (String) arg;
+      processKey(key);
+      super.add(RawableFactory.from(key));
+    } else {
+      throw new IllegalArgumentException("\"" + arg.toString() + "\" is not a valid argument.");
+    }
+//    return true;
+    return this;
   }
 
-  public static CommandArguments of(ProtocolCommand command, Object... args) {
-    CommandArguments ca = new CommandArguments(command);
-    for (Object arg : args) {
-      ca.addObject(arg);
-    }
-    return ca;
+  protected void processKey(byte[] key) {
+    // do nothing
   }
+
+  protected void processKey(String key) {
+    // do nothing
+  }
+//
+//  public static CommandArguments of(ProtocolCommand command, Object... args) {
+//    CommandArguments ca = new CommandArguments(command);
+//    for (Object arg : args) {
+//      ca.addObject(arg);
+//    }
+//    return ca;
+//  }
 }

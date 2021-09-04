@@ -1,6 +1,7 @@
 package com.redis.set;
 
 import com.redis.jedis.Jedis;
+import com.redis.jedis.providers.JedisClusterConnectionProvider;
 import com.redis.jedis.providers.JedisConnectionProvider;
 import com.redis.set.commands.SetCommands;
 import java.util.Collection;
@@ -12,7 +13,8 @@ public class RedisSet extends Jedis implements SetCommands {
 
   public RedisSet(JedisConnectionProvider provider) {
     super(provider);
-    this.setCommandObjects = new SetCommandObjects();
+    this.setCommandObjects = (provider instanceof JedisClusterConnectionProvider) ?
+        new SetClusterCommandObjects() : new SetCommandObjects();
   }
 
   @Override

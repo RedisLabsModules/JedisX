@@ -1,22 +1,26 @@
 package com.redis.hash;
 
 import com.redis.jedis.*;
-import com.redis.jedis.args.RawableFactory;
+import com.redis.jedis.commands.ProtocolCommand;
 import java.util.Map;
 
 public class HashCommandObjects {
 
+  protected CommandArguments commandArguments(ProtocolCommand command) {
+    return new CommandArguments(command);
+  }
+
   public CommandObject<Long> hset(String key, Map<String, String> fieldValues) {
-    CommandArguments args = new CommandArguments(Protocol.Command.HSET);
-    args.add(RawableFactory.from(key));
+    CommandArguments args = commandArguments(Protocol.Command.HSET);
+    args.addKeyObject(key);
     for (Map.Entry<String, String> entry : fieldValues.entrySet()) {
-      args.add(entry.getKey());
-      args.add(entry.getValue());
+      args.addObject(entry.getKey());
+      args.addObject(entry.getValue());
     }
     return new CommandObject<>(args, BuilderFactory.LONG);
   }
 
   public CommandObject<Map<String, String>> hgetAll(String key) {
-    return new CommandObject<>(CommandArguments.of(Protocol.Command.HGETALL, key), BuilderFactory.STRING_MAP);
+    return new CommandObject<>(commandArguments(Protocol.Command.HGETALL).addKeyObject(key), BuilderFactory.STRING_MAP);
   }
 }

@@ -1,16 +1,22 @@
 package com.redis.jedis;
 
+import com.redis.jedis.commands.ProtocolCommand;
+
 public class RedisCommandObjects {
 
+  protected CommandArguments commandArguments(ProtocolCommand command) {
+    return new CommandArguments(command);
+  }
+
   public CommandObject<Long> del(String key) {
-    return new CommandObject<>(CommandArguments.of(Protocol.Command.DEL, key), BuilderFactory.LONG);
+    return new CommandObject<>(commandArguments(Protocol.Command.DEL).addKeyObject(key), BuilderFactory.LONG);
   }
 
   public CommandObject<String> set(String key, String value) {
-    return new CommandObject<>(CommandArguments.of(Protocol.Command.SET, key, value), BuilderFactory.STRING);
+    return new CommandObject<>(commandArguments(Protocol.Command.SET).addKeyObject(key).addObject(value), BuilderFactory.STRING);
   }
 
   public CommandObject<String> get(String key) {
-    return new CommandObject<>(CommandArguments.of(Protocol.Command.GET, key), BuilderFactory.STRING);
+    return new CommandObject<>(commandArguments(Protocol.Command.GET).addKeyObject(key), BuilderFactory.STRING);
   }
 }
