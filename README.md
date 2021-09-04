@@ -9,6 +9,7 @@ Branch Progression
             - provider-2
                 - multi-pipe-1
                     - args-1
+                        - args-2
 
 Branch Description
 ---
@@ -28,7 +29,7 @@ A sample module implementation is done with `Hash` data structure.
 
 ### provider-2
 
-Cluster is implemented. It needed to unify JSC and JPC into one `JedisConnection` class.
+Cluster is implemented. It needed to unify JedisSocketConnection and JedisPreparedConnection classes into single `JedisConnection` class.
 
 Pipeline and Transaction for standalone instance is implemented.
 
@@ -46,4 +47,8 @@ Reliable Transaction is implemented.
 
 ### args-1
 
-TBA
+Provider provides connection by arguments. [remains completion]
+
+### args-2
+
+Provider provides connection by arguments.
