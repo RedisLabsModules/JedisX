@@ -1,6 +1,6 @@
 package com.redis.set;
 
-import com.redis.jedis.BuilderFactory;
+import com.redis.jedis.Resp2BuilderFactory;
 import com.redis.jedis.CommandArguments;
 import com.redis.jedis.CommandObject;
 import com.redis.jedis.Protocol;
@@ -20,10 +20,10 @@ public class SetCommandObjects {
     for (String member : members) {
       args.addObject(member);
     }
-    return new CommandObject<>(args, BuilderFactory.LONG);
+    return new CommandObject<>(args, Resp2BuilderFactory.LONG);
   }
 
   public CommandObject<Set<String>> smembers(String key) {
-    return new CommandObject<>(commandArguments(Protocol.Command.SMEMBERS).addKeyObject(key), BuilderFactory.STRING_SET);
+    return new CommandObject<>(commandArguments(Protocol.Command.SMEMBERS).addKeyObject(key), Resp2BuilderFactory.STRING_SET);
   }
 }

@@ -17,10 +17,10 @@ public class HashCommandObjects {
       args.addObject(entry.getKey());
       args.addObject(entry.getValue());
     }
-    return new CommandObject<>(args, BuilderFactory.LONG);
+    return new CommandObject<>(args, Resp2BuilderFactory.LONG);
   }
 
   public CommandObject<Map<String, String>> hgetAll(String key) {
-    return new CommandObject<>(commandArguments(Protocol.Command.HGETALL).addKeyObject(key), BuilderFactory.STRING_MAP);
+    return new CommandObject<>(commandArguments(Protocol.Command.HGETALL).addKeyObject(key), Resp2BuilderFactory.STRING_MAP);
   }
 }

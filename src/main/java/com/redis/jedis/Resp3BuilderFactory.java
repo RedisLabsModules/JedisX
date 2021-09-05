@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public final class BuilderFactory {
+public final class Resp3BuilderFactory {
 
   public static final Builder<Object> ENCODED_OBJECT = new Builder<Object>() {
     @Override

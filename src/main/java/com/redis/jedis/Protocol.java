@@ -10,10 +10,12 @@ import com.redis.jedis.exceptions.JedisClusterException;
 import com.redis.jedis.exceptions.JedisAccessControlException;
 import com.redis.jedis.args.Rawable;
 import com.redis.jedis.commands.ProtocolCommand;
+import com.redis.jedis.exceptions.JedisException;
 import com.redis.jedis.util.RedisInputStream;
 import com.redis.jedis.util.RedisOutputStream;
 import com.redis.jedis.util.SafeEncoder;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -31,6 +33,12 @@ public final class Protocol {
   public static final byte PLUS_BYTE = '+';
   public static final byte MINUS_BYTE = '-';
   public static final byte COLON_BYTE = ':';
+  public static final byte COMMA_BYTE = ',';
+  public static final byte UNDERSCORE_BYTE = '_';
+  public static final byte HASH_BYTE = '#';
+  public static final byte EXCLAMATORY_BYTE = '!';
+  public static final byte EQUALS_BYTE = '=';
+  public static final byte OPENING_BRACE_BYTE = '(';
 
   public static final byte[] BYTES_TRUE = toByteArray(1);
   public static final byte[] BYTES_FALSE = toByteArray(0);
@@ -152,20 +160,41 @@ public final class Protocol {
   private static Object process(final RedisInputStream is) {
     final byte b = is.readByte();
     switch (b) {
+    case UNDERSCORE_BYTE:
+      return processNull(is);
     case PLUS_BYTE:
       return processStatusCodeReply(is);
     case DOLLAR_BYTE:
+      return processBulkReply(is);
+    case EQUALS_BYTE:
+      // for now
       return processBulkReply(is);
     case ASTERISK_BYTE:
       return processMultiBulkReply(is);
     case COLON_BYTE:
       return processInteger(is);
+    case OPENING_BRACE_BYTE:
+      return processBigInteger(is);
+    case COMMA_BYTE:
+      return processFloat(is);
+    case HASH_BYTE:
+      return processBoolean(is);
     case MINUS_BYTE:
       processError(is);
       return null;
+    case EXCLAMATORY_BYTE:
+      throw new JedisException(SafeEncoder.encode(processBulkReply(is)));
     default:
       throw new JedisConnectionException("Unknown reply: " + (char) b);
     }
+  }
+
+  private static Object processNull(final RedisInputStream is) {
+    // read 2 more bytes for the command delimiter
+    is.readByte();
+    is.readByte();
+
+    return null;
   }
 
   private static byte[] processStatusCodeReply(final RedisInputStream is) {
@@ -196,6 +225,33 @@ public final class Protocol {
 
   private static Long processInteger(final RedisInputStream is) {
     return is.readLongCrLf();
+  }
+
+  private static Double processFloat(final RedisInputStream is) {
+    byte[] bin = is.readLineBytes();
+    String str = SafeEncoder.encode(bin);
+    if (str.equals("inf")) return Double.POSITIVE_INFINITY;
+    if (str.equals("-inf")) return Double.NEGATIVE_INFINITY;
+    return Double.valueOf(str);
+  }
+
+  private static BigInteger processBigInteger(final RedisInputStream is) {
+    byte[] bin = is.readLineBytes();
+    String str = SafeEncoder.encode(bin);
+    return new BigInteger(str);
+  }
+
+  private static Boolean processBoolean(final RedisInputStream is) {
+    byte b = is.readByte();
+
+    // read 2 more bytes for the command delimiter
+    is.readByte();
+    is.readByte();
+
+    if (b == 't') return Boolean.TRUE;
+    if (b == 'f') return Boolean.FALSE;
+
+    throw new JedisConnectionException("Unknown reply: " + (char) b);
   }
 
   private static List<Object> processMultiBulkReply(final RedisInputStream is) {
