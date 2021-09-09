@@ -10,6 +10,8 @@ Branch Progression
                 - multi-pipe-1
                     - args-1
                         - args-2
+                            - <strike>resp3-1</strike>
+                            - retry-2
 
 Branch Description
 ---
@@ -52,3 +54,7 @@ Provider provides connection by arguments. [remains completion]
 ### args-2
 
 Provider provides connection by arguments.
+
+### retry-2
+
+Retry-ability. [tests required]
