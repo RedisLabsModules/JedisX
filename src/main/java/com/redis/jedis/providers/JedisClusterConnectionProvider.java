@@ -38,4 +38,12 @@ public class JedisClusterConnectionProvider implements JedisConnectionProvider, 
   public HostAndPort getNodeKey(String key) {
     return this.connectionHandler.getNodeInfoFromSlot(JedisClusterCRC16.getSlot(key));
   }
+
+  public void renewSlotCache() {
+    connectionHandler.renewSlotCache();
+  }
+
+  public void renewSlotCache(JedisConnection jedis) {
+    connectionHandler.renewSlotCache(jedis);
+  }
 }

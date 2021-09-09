@@ -141,6 +141,11 @@ public class JedisConnection implements Closeable {
     }
   }
 
+  public <T> T executeCommand(final CommandObject<T> commandObject) {
+    sendCommand(commandObject.getArguments());
+    return commandObject.getBuilder().build(getOne());
+  }
+
   public void sendCommand(final CommandArguments args) {
     try {
       connect();
