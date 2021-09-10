@@ -20,17 +20,17 @@ public class ClusterPipeline extends MultiNodePipelineBase implements PipelineCo
 
   @Override
   public Response<Long> del(String key) {
-    return appendCommand(provider.getNodeKey(key), commandObjects.del(key));
+    return appendCommand(provider.getNode(key), commandObjects.del(key));
   }
 
   @Override
   public Response<String> get(String key) {
-    return appendCommand(provider.getNodeKey(key), commandObjects.get(key));
+    return appendCommand(provider.getNode(key), commandObjects.get(key));
   }
 
   @Override
   public Response<String> set(String key, String value) {
-    return appendCommand(provider.getNodeKey(key), commandObjects.set(key, value));
+    return appendCommand(provider.getNode(key), commandObjects.set(key, value));
   }
 
 }
